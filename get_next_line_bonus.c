@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ilmahjou <ilmahjou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/06 15:23:05 by ilmahjou          #+#    #+#             */
-/*   Updated: 2025/01/13 13:37:47 by ilmahjou         ###   ########.fr       */
+/*   Created: 2024/12/12 13:25:36 by ilmahjou          #+#    #+#             */
+/*   Updated: 2024/12/18 17:56:22 by ilmahjou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*ft_read_file(int fd, char *buffer)
 {
@@ -44,7 +44,7 @@ char	*ft_extract_line(char *buffer)
 	int		i;
 
 	i = 0;
-	if (!buffer[0])
+	if (!buffer || buffer[0] == '\0')
 		return (NULL);
 	while (buffer[i] != '\n' && buffer[i] != '\0')
 		i++;
@@ -91,28 +91,41 @@ char	*ft_store(char *buffer)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
+	static char	*buffer[FOPEN_MAX];
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd > FOPEN_MAX || BUFFER_SIZE <= 0)
 		return (NULL);
-	buffer = ft_read_file(fd, buffer);
-	if (!buffer)
+	buffer[fd] = ft_read_file(fd, buffer[fd]);
+	if (!buffer[fd])
 		return (NULL);
-	line = ft_extract_line(buffer);
-	buffer = ft_store(buffer);
+	line = ft_extract_line(buffer[fd]);
+	buffer[fd] = ft_store(buffer[fd]);
 	return (line);
 }
-/* int main(void)
+/* int main()
 {
-	int fd = open("file1.txt", O_RDONLY);
-	char *line = get_next_line(fd);
-	while (line != NULL)
+	int fd1 = open ("file1.txt", O_RDONLY);
+	int fd2 = open ("file2.txt", O_RDONLY);
+	char *line1 = get_next_line(fd1);
+	char *line2 = get_next_line(fd2);
+
+	while (line1 || line2)
 	{
-		printf("%s", line);
-		free(line);
-		line = get_next_line(fd);
+		if(line1)
+		{
+			printf("%s", line1);
+			free(line1);
+			line1 = get_next_line(fd1);
+		}
+		if(line2)
+		{
+			printf("%s", line2);
+			free(line2);
+			line2 = get_next_line(fd2);
+		}
 	}
-	close(fd);
+	close (fd1);
+	close(fd2);
 	return (0);
 } */
